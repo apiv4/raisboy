@@ -1,0 +1,214 @@
+<answer>
+<h1>Website Information Architecture & Design Specifications</h1>
+<p>This document outlines the information architecture (IA) and comprehensive design specifications for an interactive API documentation website. The design is based on the content extracted from the provided API guide.</p>
+
+<h2>1. Foundational Design Assumptions</h2>
+<p>As no specific design aesthetic was provided, the following choices have been made to create a professional, modern, and user-friendly documentation experience suitable for developers:</p>
+<ul>
+    <li><b>Design Aesthetic:</b> Modern, Clean, Dark Theme. This aesthetic is popular for developer tools as it reduces eye strain and improves the focus on code and technical details.</li>
+    <li><b>Hero Background & Primary Color:</b> A deep navy blue (<code>#0D1B2A</code>) will serve as the primary background, with a vibrant cyan (<code>#00FFFF</code>) used as the main accent color for interactive elements, ensuring high contrast and a distinct visual identity.</li>
+</ul>
+
+<h2>2. Information Architecture (IA)</h2>
+<p>The structure is designed for logical flow and easy discoverability of information, moving from high-level concepts to specific endpoint details.</p>
+
+<h3>2.1. Sitemap</h3>
+<p>The website will be organized into the following hierarchical sections:</p>
+<ul>
+    <li><b>Introduction</b>
+        <ul>
+            <li>Welcome & Overview</li>
+            <li>Process Flow (Visual Schema)</li>
+        </ul>
+    </li>
+    <li><b>Getting Started</b>
+        <ul>
+            <li>Authentication (Covering Headers, Signature, and Timestamps)</li>
+        </ul>
+    </li>
+    <li><b>Core API Endpoints</b>
+        <ul>
+            <li><b>User Validation</b>
+                <ul>
+                    <li>Validate a User (`POST /api/v4/payments/raisboy/validate-user`)</li>
+                </ul>
+            </li>
+            <li><b>Deposits</b>
+                <ul>
+                    <li>Create a Deposit (`POST /api/v4/payments/raisboy/deposit/create`)</li>
+                </ul>
+            </li>
+            <li><b>Payouts</b>
+                <ul>
+                    <li>Create a Payout (`POST /api/payout/create`)</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li><b>Webhooks</b>
+        <ul>
+            <li>Receiving Webhooks (Signature Validation)</li>
+            <li>Event: Payout Confirmation</li>
+            <li>Event: Final Payout Status</li>
+        </ul>
+    </li>
+    <li><b>Reference</b>
+        <ul>
+            <li>Error Codes (A consolidated list of all status and error codes)</li>
+            <li>Payment Methods (List of `payment_method` values)</li>
+            <li>Account Management Guide</li>
+        </ul>
+    </li>
+</ul>
+
+<h3>2.2. Navigation Patterns</h3>
+<ul>
+    <li><b>Primary Navigation (Persistent Sidebar):</b> A collapsible, hierarchical sidebar on the left will serve as the main navigation, directly mirroring the sitemap. The active section will be highlighted.</li>
+    <li><b>Search Bar:</b> A prominent search bar will be placed at the top of the sidebar for quick filtering of endpoints, parameters, and content.</li>
+    <li><b>In-Page Navigation:</b> For longer content pages, a right-hand "On this page" navigation menu will automatically generate based on the page's subheadings (H2, H3), allowing users to jump to specific sections.</li>
+</ul>
+
+<h3>2.3. Interactive Elements</h3>
+<ul>
+    <li><b>Three-Pane Layout:</b> The core documentation pages will use a classic three-pane layout:
+        <ol>
+            <li><b>Left Pane:</b> Primary navigation sidebar.</li>
+            <li><b>Center Pane:</b> Detailed descriptions, parameter tables, and explanations.</li>
+            <li><b>Right Pane:</b> Contextual code examples with language selectors.</li>
+        </ol>
+    </li>
+    <li><b>API Endpoint Cards:</b> Each endpoint will be presented in a self-contained card, clearly displaying the HTTP method, endpoint path, and a brief description.</li>
+    <li><b>Interactive Code Snippets:</b>
+        <ul>
+            <li>Syntax-highlighted code blocks for clarity.</li>
+            <li>Language selector tabs (e.g., cURL, Python, JavaScript).</li>
+            <li>One-click "Copy to Clipboard" functionality.</li>
+        </ul>
+    </li>
+    <li><b>Collapsible Sections:</b> Long JSON response examples and extensive lists will be placed within collapsible accordions to keep the interface clean and scannable.</li>
+    <li><b>Data Visualization:</b> The initial process flow diagram will be recreated as a clean SVG or using a library like Mermaid.js to be integrated directly on the introduction page.</li>
+</ul>
+
+<h2>3. Design Specifications</h2>
+
+<h3>3.1. Typography System</h3>
+<p>The typography is chosen for maximum readability of both prose and code.</p>
+<table>
+    <thead>
+        <tr>
+            <th>Element</th>
+            <th>Font Family</th>
+            <th>Font Weight</th>
+            <th>Size</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>H1 (Page Title)</td>
+            <td>Inter</td>
+            <td>700 (Bold)</td>
+            <td>36px</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>H2 (Section Title)</td>
+            <td>Inter</td>
+            <td>600 (Semi-Bold)</td>
+            <td>28px</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>H3 (Subsection Title)</td>
+            <td>Inter</td>
+            <td>600 (Semi-Bold)</td>
+            <td>22px</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>Body Text</td>
+            <td>Inter</td>
+            <td>400 (Regular)</td>
+            <td>16px</td>
+            <td>Line height: 1.6</td>
+        </tr>
+        <tr>
+            <td>Code & Mono</td>
+            <td>Roboto Mono</td>
+            <td>400 (Regular)</td>
+            <td>14px</td>
+            <td>For code snippets, parameter names, etc.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>3.2. Color Palette</h3>
+<p>A high-contrast dark theme palette designed for clarity and visual appeal.</p>
+<table>
+    <thead>
+        <tr>
+            <th>Usage</th>
+            <th>Color</th>
+            <th>HEX Code</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Background - Primary</td>
+            <td style="background-color:#0D1B2A; color:white;">Dark Navy</td>
+            <td><code>#0D1B2A</code></td>
+        </tr>
+        <tr>
+            <td>Background - Secondary (Cards)</td>
+            <td style="background-color:#1B263B; color:white;">Dark Slate</td>
+            <td><code>#1B263B</code></td>
+        </tr>
+        <tr>
+            <td>Accent - Primary</td>
+            <td style="background-color:#00FFFF; color:black;">Vibrant Cyan</td>
+            <td><code>#00FFFF</code></td>
+        </tr>
+        <tr>
+            <td>Text - Primary</td>
+            <td style="background-color:#1B263B; color:#F0F0F0;">Off-White</td>
+            <td><code>#F0F0F0</code></td>
+        </tr>
+        <tr>
+            <td>Text - Secondary</td>
+            <td style="background-color:#1B263B; color:#A9A9A9;">Light Grey</td>
+            <td><code>#A9A9A9</code></td>
+        </tr>
+        <tr>
+            <td>Status - Success</td>
+            <td style="background-color:#2ECC71; color:white;">Green</td>
+            <td><code>#2ECC71</code></td>
+        </tr>
+        <tr>
+            <td>Status - Error</td>
+            <td style="background-color:#E74C3C; color:white;">Red</td>
+            <td><code>#E74C3C</code></td>
+        </tr>
+        <tr>
+            <td>HTTP POST</td>
+            <td style="background-color:#49CC90; color:white;">Green</td>
+            <td><code>#49CC90</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>3.3. Spacing & Layout</h3>
+<ul>
+    <li><b>Base Unit:</b> An 8px grid system will be used. All padding, margins, and gaps will be multiples of 8 (e.g., 8px, 16px, 24px, 32px) to ensure consistent rhythm.</li>
+    <li><b>Layout Principle:</b> A responsive three-column layout is the primary structure. On tablet devices, the right code pane will stack below the main content. On mobile, the left sidebar will be collapsed behind a hamburger menu, and all content will be in a single-column view.</li>
+    <li><b>Whitespace:</b> Generous whitespace will be used within components and between page sections to prevent a cluttered appearance and improve readability. Main content containers will have at least 32px of padding.</li>
+    <li><b>Max Width:</b> The main content container will be capped at a maximum width of 1440px to maintain comfortable line lengths on large monitors.</li>
+</ul>
+
+<h3>3.4. Component Patterns</h3>
+<ul>
+    <li><b>Badges:</b> Small, colored tags will be used to denote HTTP methods (e.g., <code>POST</code>), parameter status (e.g., <code>required</code>), and data types (e.g., <code>string</code>).</li>
+    <li><b>Tables:</b> Used for displaying request/response parameters. They will feature a distinct header row, clear borders, and alternating row colors (zebra-striping) for easy scanning.</li>
+    <li><b>Code Blocks:</b> Will have a dedicated dark background, syntax highlighting themes, language tabs, and a copy-to-clipboard icon on hover.</li>
+    <li><b>Callouts/Alerts:</b> Specially formatted blocks with distinct colors (green for success/tips, red for errors/warnings) will be used to highlight critical information, such as the note about the acceptable time discrepancy for timestamps.</li>
+</ul>
+</answer>

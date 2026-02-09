@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>API Documentation</title>
+  <meta name="description" content="API documentation with Swiss Modernism aesthetic." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="hero" role="banner">
+    <div class="hero__inner container">
+      <div class="brand">
+        <img src="./assets/logo.svg" alt="Logo" class="brand__logo" />
+        <div class="brand__text">
+          <h1>API Docs</h1>
+          <p>Swiss Modernism • Precise • Efficient</p>
+        </div>
+      </div>
+      <div class="search">
+        <input id="search-input" type="search" placeholder="Search… (⌘/Ctrl+K)" aria-label="Search documentation" />
+        <button id="search-clear" class="btn btn--ghost" aria-label="Clear search" title="Clear">
+          ✕
+        </button>
+        <div id="search-results" class="search__results" role="listbox" aria-label="Search results" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout container">
+    <nav class="sidebar" aria-label="Primary">
+      <div class="sidebar__inner">
+        <button class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-nav">☰ Menu</button>
+        <ul id="sidebar-nav" class="nav">
+          <li><a href="#introduction">Introduction</a></li>
+          <li><a href="#authorization">Authorization</a></li>
+          <li><a href="#user-validation">User Validation</a></li>
+          <li><a href="#deposit-creation">Deposit Creation</a></li>
+          <li><a href="#payout-creation">Payout Creation</a></li>
+          <li><a href="#webhooks">Webhooks</a>
+            <ul>
+              <li><a href="#webhooks-incoming">Incoming</a></li>
+              <li><a href="#webhooks-outgoing">Outgoing</a></li>
+            </ul>
+          </li>
+          <li><a href="#account-management">Account Management</a></li>
+          <li><a href="#payment-methods">Payment Methods</a></li>
+          <li><a href="#errors">Errors</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="main" class="content" tabindex="-1">
+      <article>
+        <section id="introduction" class="section">
+          <h2>Introduction</h2>
+          <p>Welcome to the API documentation. This guide provides a clear, systematic overview of endpoints, authorization, and integration flows.</p>
+          <div class="flow">
+            <div class="flow__step">Client Signs Request</div>
+            <div class="flow__arrow" aria-hidden="true"></div>
+            <div class="flow__step">Send to API</div>
+            <div class="flow__arrow" aria-hidden="true"></div>
+            <div class="flow__step">Receive Response/Webhook</div>
+          </div>
+          <details class="callout" open>
+            <summary>Quick start</summary>
+            <ol>
+              <li>Generate API key and secret.</li>
+              <li>Sign requests using HMAC SHA256 (see Authorization).</li>
+              <li>Validate users, create deposits/payouts, handle webhooks.</li>
+            </ol>
+          </details>
+        </section>
+
+        <section id="authorization" class="section">
+          <h2>Authorization</h2>
+          <p>Requests are authenticated using an HMAC SHA256 signature.</p>
+          <div class="cards">
+            <div class="card">
+              <h3>Signing Components</h3>
+              <ul>
+                <li>HTTP method (uppercase)</li>
+                <li>Request path and canonical query string</li>
+                <li>Timestamp (UNIX seconds)</li>
+                <li>Request body (exact bytes)</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>HTTP Headers</h3>
+              <table>
+                <thead><tr><th>Header</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr><td>X-API-KEY</td><td>Your public API key</td></tr>
+                  <tr><td>X-SIGNATURE</td><td>Hex-encoded HMAC SHA256 signature</td></tr>
+                  <tr><td>X-TIMESTAMP</td><td>UNIX seconds when request was created</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+<pre><code class="language-javascript">// Pseudocode for HMAC SHA256 signing (Node.js style)
+import crypto from 'crypto';
+
+function signRequest(method, pathWithQuery, timestamp, body, secret) {
+  const canonical = [
+    method.toUpperCase(),
+    pathWithQuery,
+    String(timestamp),
+    body ? JSON.stringify(body) : ''
+  ].join('\n');
+  return crypto.createHmac('sha256', secret).update(canonical).digest('hex');
+}
+</code></pre>
+
+<pre><code class="language-bash"># Example curl illustrating headers (values are placeholders)
+curl -X POST "https://api.example.com/v1/deposits" \
+  -H "Content-Type: application/json" \
+  -H "X-API-KEY: &lt;your-key&gt;" \
+  -H "X-TIMESTAMP: $(date +%s)" \
+  -H "X-SIGNATURE: &lt;signature-hex&gt;" \
+  -d '{"amount": 1000, "currency": "USD"}'
+</code></pre>
+        </section>
+
+        <section id="user-validation" class="section">
+          <h2>User Validation</h2>
+          <p>Validate a user prior to processing payments.</p>
+          <div class="endpoint">
+            <div class="endpoint__meta">
+              <span class="badge">POST</span>
+              <code>/v1/users/validate</code>
+            </div>
+            <details open>
+              <summary>Parameters</summary>
+              <table>
+                <thead><tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr><td>user_id</td><td>string</td><td>Yes</td><td>Unique identifier of the user</td></tr>
+                  <tr><td>email</td><td>string</td><td>No</td><td>Email address for additional verification</td></tr>
+                </tbody>
+              </table>
+            </details>
+
+<pre><code class="language-json">{
+  "user_id": "usr_123",
+  "email": "user@example.com"
+}
+</code></pre>
+          </div>
+        </section>
+
+        <section id="deposit-creation" class="section">
+          <h2>Deposit Creation</h2>
+          <div class="endpoint">
+            <div class="endpoint__meta">
+              <span class="badge badge--accent">POST</span>
+              <code>/v1/deposits</code>
+            </div>
+            <details open>
+              <summary>Parameters</summary>
+              <table>
+                <thead><tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr><td>amount</td><td>integer</td><td>Yes</td><td>Amount in minor units (e.g., cents)</td></tr>
+                  <tr><td>currency</td><td>string</td><td>Yes</td><td>ISO currency code</td></tr>
+                  <tr><td>reference</td><td>string</td><td>No</td><td>Client reference</td></tr>
+                </tbody>
+              </table>
+            </details>
+
+<pre><code class="language-json">{
+  "amount": 1000,
+  "currency": "USD",
+  "reference": "order_987"
+}
+</code></pre>
+          </div>
+        </section>
+
+        <section id="payout-creation" class="section">
+          <h2>Payout Creation</h2>
+          <div class="endpoint">
+            <div class="endpoint__meta">
+              <span class="badge">POST</span>
+              <code>/v1/payouts</code>
+            </div>
+            <details open>
+              <summary>Parameters</summary>
+              <table>
+                <thead><tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr><td>amount</td><td>integer</td><td>Yes</td><td>Amount in minor units</td></tr>
+                  <tr><td>currency</td><td>string</td><td>Yes</td><td>ISO currency code</td></tr>
+                  <tr><td>destination</td><td>object</td><td>Yes</td><td>Destination account details</td></tr>
+                </tbody>
+              </table>
+            </details>
+
+<pre><code class="language-json">{
+  "amount": 2500,
+  "currency": "EUR",
+  "destination": { "iban": "DE89 3704 0044 0532 0130 00", "name": "Acme GmbH" }
+}
+</code></pre>
+          </div>
+        </section>
+
+        <section id="webhooks" class="section">
+          <h2>Webhooks</h2>
+          <p>Subscribe to webhook events and verify signatures to ensure authenticity.</p>
+          <h3 id="webhooks-incoming">Incoming Webhooks</h3>
+          <p>We send events to your endpoint. Validate the signature header before processing.</p>
+<pre><code class="language-javascript">// Verify webhook signature (conceptual)
+import crypto from 'crypto';
+
+function verify(signatureHeader, timestamp, rawBody, secret) {
+  const expected = crypto.createHmac('sha256', secret)
+    .update(`${timestamp}\n${rawBody}`)
+    .digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(signatureHeader, 'hex'), Buffer.from(expected, 'hex'));
+}
+</code></pre>
+
+          <h3 id="webhooks-outgoing">Outgoing Webhooks</h3>
+          <p>Trigger callbacks to partner systems when specific internal events occur.</p>
+          <details>
+            <summary>Event Types</summary>
+            <ul>
+              <li>deposit.created</li>
+              <li>deposit.succeeded</li>
+              <li>payout.created</li>
+              <li>payout.succeeded</li>
+              <li>payment.failed</li>
+            </ul>
+          </details>
+        </section>
+
+        <section id="account-management" class="section">
+          <h2>Account Management</h2>
+          <p>Procedures for managing API keys, IP allowlists, and environment separation.</p>
+          <ul class="steps">
+            <li>Create and rotate API keys regularly.</li>
+            <li>Assign least-privilege roles to keys.</li>
+            <li>Separate test and production environments.</li>
+            <li>Review webhook endpoints and retry policies.</li>
+          </ul>
+        </section>
+
+        <section id="payment-methods" class="section">
+          <h2>Payment Methods</h2>
+          <div class="cards">
+            <div class="card"><h3>Cards</h3><p>Credit and debit cards in supported regions.</p></div>
+            <div class="card"><h3>Bank Transfer</h3><p>ACH/SEPA and local rails where available.</p></div>
+            <div class="card"><h3>Wallets</h3><p>Digital wallets subject to regional support.</p></div>
+          </div>
+        </section>
+
+        <section id="errors" class="section">
+          <h2>Errors</h2>
+          <table>
+            <thead><tr><th>Code</th><th>HTTP</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>signature_invalid</td><td>401</td><td>Signature verification failed</td></tr>
+              <tr><td>rate_limited</td><td>429</td><td>Too many requests</td></tr>
+              <tr><td>validation_error</td><td>400</td><td>Malformed or missing parameters</td></tr>
+              <tr><td>server_error</td><td>500</td><td>Unexpected error</td></tr>
+            </tbody>
+          </table>
+        </section>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <div class="toc__inner">
+        <h2>On this page</h2>
+        <nav id="toc-nav"></nav>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="footer container">
+    <p>© <span id="year"></span> API Docs. Built with a Swiss Modernism aesthetic.</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-Yw4nRj5bYzsp26P4E+O1gB5X8p8t1G3jUq2mQmXyMnO5Ih5uE3sB2y9W0a2X3CqU9h+zQHh9JdI0H8mS3gVJZg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="./js/script.js"></script>
+</body>
+</html>
